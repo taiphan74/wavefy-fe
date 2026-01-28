@@ -2,7 +2,6 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -23,21 +22,6 @@ export function RegisterCard() {
 
       <CardContent>
         <form className="space-y-5">
-          <div className="space-y-2">
-            <Label
-              htmlFor="name"
-              className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500"
-            >
-              Họ và tên
-            </Label>
-            <Input
-              id="name"
-              type="text"
-              placeholder="Nguyễn An"
-              className="h-12 rounded-2xl border-slate-200 bg-white text-sm text-slate-800 shadow-sm focus-visible:ring-slate-200/60"
-            />
-          </div>
-
           <div className="space-y-2">
             <Label
               htmlFor="email"
@@ -66,28 +50,6 @@ export function RegisterCard() {
               placeholder="••••••••"
               className="h-12 rounded-2xl border-slate-200 bg-white text-sm text-slate-800 shadow-sm focus-visible:ring-slate-200/60"
             />
-          </div>
-
-          <div className="space-y-2">
-            <Label
-              htmlFor="confirm-password"
-              className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500"
-            >
-              Nhập lại mật khẩu
-            </Label>
-            <Input
-              id="confirm-password"
-              type="password"
-              placeholder="••••••••"
-              className="h-12 rounded-2xl border-slate-200 bg-white text-sm text-slate-800 shadow-sm focus-visible:ring-slate-200/60"
-            />
-          </div>
-
-          <div className="flex items-start gap-3">
-            <Checkbox id="terms" className="mt-0.5 h-4 w-4 rounded border-slate-300" />
-            <Label htmlFor="terms" className="text-xs leading-relaxed text-slate-500">
-              Tôi đồng ý với điều khoản sử dụng và chính sách bảo mật của Wavefy.
-            </Label>
           </div>
 
           <Button
