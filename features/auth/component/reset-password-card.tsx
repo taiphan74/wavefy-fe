@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -12,12 +12,19 @@ import { resetPasswordRequestSchema, useAuth } from "@/features/auth";
 
 export function ResetPasswordCard() {
   const { resetPasswordMutation } = useAuth();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const token = useMemo(() => searchParams.get("token"), [searchParams]);
+
+  useEffect(() => {
+    if (!token) {
+      router.replace("/forgot-password");
+    }
+  }, [router, token]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
