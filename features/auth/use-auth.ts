@@ -2,12 +2,22 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { login, logout, register } from "./auth-api";
+import {
+  forgotPassword,
+  login,
+  logout,
+  register,
+  resetPassword,
+} from "./auth-api";
 import { setAccessToken } from "@/lib/axios";
 import type {
   AuthResponseData,
+  ForgotPasswordRequest,
+  ForgotPasswordResponseData,
   LoginRequest,
   RegisterRequest,
+  ResetPasswordRequest,
+  ResetPasswordResponseData,
 } from "./auth-api";
 
 export const authTokenKey = ["auth", "token"] as const;
@@ -47,9 +57,27 @@ export const useAuth = () => {
     },
   });
 
+  const forgotPasswordMutation = useMutation<
+    ForgotPasswordResponseData,
+    Error,
+    ForgotPasswordRequest
+  >({
+    mutationFn: forgotPassword,
+  });
+
+  const resetPasswordMutation = useMutation<
+    ResetPasswordResponseData,
+    Error,
+    ResetPasswordRequest
+  >({
+    mutationFn: resetPassword,
+  });
+
   return {
     loginMutation,
     registerMutation,
     logoutMutation,
+    forgotPasswordMutation,
+    resetPasswordMutation,
   };
 };

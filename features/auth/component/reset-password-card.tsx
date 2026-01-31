@@ -1,21 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { resetPasswordRequestSchema, useAuth } from "@/features/auth";
 
 export function ResetPasswordCard() {
+  const { resetPasswordMutation } = useAuth();
+  const searchParams = useSearchParams();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const token = useMemo(() => searchParams.get("token"), [searchParams]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setMessage(null);
+    setError(null);
+    if (resetPasswordMutation.isPending) return;
 
+    if (!token) {
+      setError("Token đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.");
+      return;
+    }
     if (!password || !confirmPassword) {
       setMessage("Vui lòng nhập đầy đủ mật khẩu mới.");
       return;
@@ -26,7 +39,20 @@ export function ResetPasswordCard() {
       return;
     }
 
-    setMessage("Mật khẩu mới đã được cập nhật.");
+    const validation = resetPasswordRequestSchema.safeParse({
+      token,
+      password,
+    });
+    if (!validation.success) {
+      setError("Dữ liệu không hợp lệ.");
+      return;
+    }
+
+    resetPasswordMutation.mutate(validation.data, {
+      onSuccess: () => setMessage("Mật khẩu mới đã được cập nhật."),
+      onError: (err) =>
+        setError(err instanceof Error ? err.message : "Đặt lại mật khẩu thất bại."),
+    });
   };
 
   return (
@@ -83,12 +109,16 @@ export function ResetPasswordCard() {
           {message ? (
             <p className="text-xs text-slate-500">{message}</p>
           ) : null}
+          {error ? <p className="text-xs text-rose-500">{error}</p> : null}
 
           <Button
             type="submit"
+            disabled={resetPasswordMutation.isPending}
             className="h-12 w-full rounded-2xl text-sm font-semibold shadow-lg transition hover:-translate-y-0.5"
           >
-            Cập nhật mật khẩu
+            {resetPasswordMutation.isPending
+              ? "Đang cập nhật..."
+              : "Cập nhật mật khẩu"}
           </Button>
         </form>
       </CardContent>

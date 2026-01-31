@@ -14,6 +14,13 @@ export const loginRequestSchema = z.object({
 });
 
 export const refreshRequestSchema = z.object({});
+export const forgotPasswordRequestSchema = z.object({
+  email: z.string().email(),
+});
+export const resetPasswordRequestSchema = z.object({
+  token: z.string().min(1),
+  password: z.string().min(1),
+});
 
 export const authUserSchema = z.object({
   id: z.string().uuid(),
@@ -34,13 +41,27 @@ export const authResponseDataSchema = z.object({
 export const logoutResponseDataSchema = z.object({
   logged_out: z.literal(true),
 });
+export const forgotPasswordResponseDataSchema = z.object({
+  sent: z.literal(true),
+});
+export const resetPasswordResponseDataSchema = z.object({
+  reset: z.literal(true),
+});
 
 export type RegisterRequest = z.infer<typeof registerRequestSchema>;
 export type LoginRequest = z.infer<typeof loginRequestSchema>;
 export type RefreshRequest = z.infer<typeof refreshRequestSchema>;
+export type ForgotPasswordRequest = z.infer<typeof forgotPasswordRequestSchema>;
+export type ResetPasswordRequest = z.infer<typeof resetPasswordRequestSchema>;
 export type AuthUser = z.infer<typeof authUserSchema>;
 export type AuthResponseData = z.infer<typeof authResponseDataSchema>;
 export type LogoutResponseData = z.infer<typeof logoutResponseDataSchema>;
+export type ForgotPasswordResponseData = z.infer<
+  typeof forgotPasswordResponseDataSchema
+>;
+export type ResetPasswordResponseData = z.infer<
+  typeof resetPasswordResponseDataSchema
+>;
 export type AuthApiResponse = ApiResponse<AuthResponseData>;
 
 export const register = async (
@@ -60,4 +81,18 @@ export const login = async (
 export const logout = async (): Promise<LogoutResponseData> => {
   const data = await api.post("/auth/logout");
   return logoutResponseDataSchema.parse(data);
+};
+
+export const forgotPassword = async (
+  payload: ForgotPasswordRequest
+): Promise<ForgotPasswordResponseData> => {
+  const data = await api.post("/auth/forgot-password", payload);
+  return forgotPasswordResponseDataSchema.parse(data);
+};
+
+export const resetPassword = async (
+  payload: ResetPasswordRequest
+): Promise<ResetPasswordResponseData> => {
+  const data = await api.post("/auth/reset-password", payload);
+  return resetPasswordResponseDataSchema.parse(data);
 };

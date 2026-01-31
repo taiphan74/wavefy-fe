@@ -7,20 +7,36 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { forgotPasswordRequestSchema, useAuth } from "@/features/auth";
 
 export function ForgotPasswordCard() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const { forgotPasswordMutation } = useAuth();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!email.trim()) {
-      setMessage("Vui lòng nhập email để nhận hướng dẫn.");
+    setMessage(null);
+    setError(null);
+    if (forgotPasswordMutation.isPending) return;
+
+    const validation = forgotPasswordRequestSchema.safeParse({ email });
+    if (!validation.success) {
+      setError("Vui lòng nhập email hợp lệ.");
       return;
     }
-    setMessage(
-      "Nếu email tồn tại, chúng tôi sẽ gửi hướng dẫn khôi phục mật khẩu."
-    );
+
+    forgotPasswordMutation.mutate(validation.data, {
+      onSuccess: () => {
+        setMessage(
+          "Nếu email tồn tại, chúng tôi sẽ gửi hướng dẫn khôi phục mật khẩu."
+        );
+      },
+      onError: (err) => {
+        setError(err instanceof Error ? err.message : "Gửi email thất bại.");
+      },
+    });
   };
 
   return (
@@ -60,12 +76,16 @@ export function ForgotPasswordCard() {
           {message ? (
             <p className="text-xs text-slate-500">{message}</p>
           ) : null}
+          {error ? <p className="text-xs text-rose-500">{error}</p> : null}
 
           <Button
             type="submit"
+            disabled={forgotPasswordMutation.isPending}
             className="h-12 w-full rounded-2xl text-sm font-semibold shadow-lg transition hover:-translate-y-0.5"
           >
-            Gửi hướng dẫn
+            {forgotPasswordMutation.isPending
+              ? "Đang gửi..."
+              : "Gửi hướng dẫn"}
           </Button>
         </form>
       </CardContent>
