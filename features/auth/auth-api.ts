@@ -31,11 +31,16 @@ export const authResponseDataSchema = z.object({
   user: authUserSchema,
 });
 
+export const logoutResponseDataSchema = z.object({
+  logged_out: z.literal(true),
+});
+
 export type RegisterRequest = z.infer<typeof registerRequestSchema>;
 export type LoginRequest = z.infer<typeof loginRequestSchema>;
 export type RefreshRequest = z.infer<typeof refreshRequestSchema>;
 export type AuthUser = z.infer<typeof authUserSchema>;
 export type AuthResponseData = z.infer<typeof authResponseDataSchema>;
+export type LogoutResponseData = z.infer<typeof logoutResponseDataSchema>;
 export type AuthApiResponse = ApiResponse<AuthResponseData>;
 
 export const register = async (
@@ -50,4 +55,9 @@ export const login = async (
 ): Promise<AuthResponseData> => {
   const data = await api.post("/auth/login", payload);
   return authResponseDataSchema.parse(data);
+};
+
+export const logout = async (): Promise<LogoutResponseData> => {
+  const data = await api.post("/auth/logout");
+  return logoutResponseDataSchema.parse(data);
 };

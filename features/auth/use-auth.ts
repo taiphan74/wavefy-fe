@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { login, register } from "./auth-api";
+import { login, logout, register } from "./auth-api";
 import { setAccessToken } from "@/lib/axios";
 import type {
   AuthResponseData,
@@ -38,8 +38,18 @@ export const useAuth = () => {
     },
   });
 
+  const logoutMutation = useMutation({
+    mutationFn: logout,
+    onSuccess: () => {
+      setAccessToken(null);
+      queryClient.removeQueries({ queryKey: authTokenKey });
+      queryClient.removeQueries({ queryKey: authUserKey });
+    },
+  });
+
   return {
     loginMutation,
     registerMutation,
+    logoutMutation,
   };
 };
