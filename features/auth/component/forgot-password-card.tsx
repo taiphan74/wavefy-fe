@@ -3,11 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { forgotPasswordRequestSchema, useAuth } from "@/features/auth";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 
 export function ForgotPasswordCard() {
   const [email, setEmail] = useState("");
@@ -74,9 +76,26 @@ export function ForgotPasswordCard() {
           </div>
 
           {message ? (
-            <p className="text-xs text-slate-500">{message}</p>
+            <Alert className="border-emerald-200/80 bg-emerald-50/80 text-emerald-700 shadow-[0_10px_30px_-20px_rgba(16,185,129,0.35)]">
+              <CheckCircle2 />
+              <AlertTitle>Đã gửi yêu cầu</AlertTitle>
+              <AlertDescription className="text-emerald-600">
+                {message}
+              </AlertDescription>
+            </Alert>
           ) : null}
-          {error ? <p className="text-xs text-rose-500">{error}</p> : null}
+          {error ? (
+            <Alert
+              variant="destructive"
+              className="border-rose-200/80 bg-rose-50/80 text-rose-700 shadow-[0_10px_30px_-20px_rgba(244,63,94,0.45)]"
+            >
+              <AlertCircle />
+              <AlertTitle>Không thể gửi email</AlertTitle>
+              <AlertDescription className="text-rose-600">
+                {error}
+              </AlertDescription>
+            </Alert>
+          ) : null}
 
           <Button
             type="submit"

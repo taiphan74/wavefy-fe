@@ -3,12 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { loginRequestSchema, useAuth } from "@/features/auth";
+import { AlertCircle } from "lucide-react";
 
 export function LoginCard() {
   const [email, setEmail] = useState("");
@@ -84,7 +86,16 @@ export function LoginCard() {
           </div>
 
           {error ? (
-            <p className="text-xs text-rose-500">{error}</p>
+            <Alert
+              variant="destructive"
+              className="border-rose-200/80 bg-rose-50/80 text-rose-700 shadow-[0_10px_30px_-20px_rgba(244,63,94,0.45)]"
+            >
+              <AlertCircle />
+              <AlertTitle>Không thể đăng nhập</AlertTitle>
+              <AlertDescription className="text-rose-600">
+                {error}
+              </AlertDescription>
+            </Alert>
           ) : null}
 
           <div className="flex items-center justify-between text-xs text-slate-500">
