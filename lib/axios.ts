@@ -75,11 +75,6 @@ const onResponseFulfilled = (
   const payload = response.data as ApiResponse<unknown>;
 
   if (payload && payload.status === "ok") {
-    const maybeToken = (payload.data as { access_token?: string } | null)
-      ?.access_token;
-    if (typeof maybeToken === "string" && maybeToken.length > 0) {
-      setAccessToken(maybeToken);
-    }
     return payload.data;
   }
 

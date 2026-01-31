@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { login, register } from "./auth-api";
+import { setAccessToken } from "@/lib/axios";
 import type {
   AuthResponseData,
   LoginRequest,
@@ -18,6 +19,7 @@ export const useAuth = () => {
   const loginMutation = useMutation<AuthResponseData, Error, LoginRequest>({
     mutationFn: login,
     onSuccess: (data) => {
+      setAccessToken(data.access_token);
       queryClient.setQueryData(authTokenKey, data.access_token);
       queryClient.setQueryData(authUserKey, data.user);
     },
@@ -30,6 +32,7 @@ export const useAuth = () => {
   >({
     mutationFn: register,
     onSuccess: (data) => {
+      setAccessToken(data.access_token);
       queryClient.setQueryData(authTokenKey, data.access_token);
       queryClient.setQueryData(authUserKey, data.user);
     },
