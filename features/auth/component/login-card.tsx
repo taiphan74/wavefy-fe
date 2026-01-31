@@ -95,11 +95,11 @@ export function LoginCard() {
               </Label>
             </div>
             <Button
-              type="button"
+              asChild
               variant="ghost"
               className="h-auto px-0 text-xs font-semibold text-slate-700 hover:bg-transparent hover:text-slate-900"
             >
-              Quên mật khẩu?
+              <Link href="/forgot-password">Quên mật khẩu?</Link>
             </Button>
           </div>
 
