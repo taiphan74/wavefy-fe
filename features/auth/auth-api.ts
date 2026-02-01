@@ -13,7 +13,9 @@ export const loginRequestSchema = z.object({
   password: z.string().min(1),
 });
 
-export const refreshRequestSchema = z.object({});
+export const refreshRequestSchema = z.object({
+  refresh_token: z.string().min(1),
+});
 export const forgotPasswordRequestSchema = z.object({
   email: z.string().email(),
 });
@@ -21,12 +23,17 @@ export const resetPasswordRequestSchema = z.object({
   token: z.string().min(1),
   password: z.string().min(1),
 });
+export const verifyEmailRequestSchema = z.object({
+  token: z.string().min(1),
+});
 
 export const authUserSchema = z.object({
   id: z.string().uuid(),
   first_name: z.string(),
   last_name: z.string(),
   email: z.string().email(),
+  role: z.enum(["USER", "ADMIN"]),
+  is_active: z.boolean(),
   created_at: z.string(),
   updated_at: z.string(),
 });
@@ -47,12 +54,16 @@ export const forgotPasswordResponseDataSchema = z.object({
 export const resetPasswordResponseDataSchema = z.object({
   reset: z.literal(true),
 });
+export const verifyEmailResponseDataSchema = z.object({
+  verified: z.literal(true),
+});
 
 export type RegisterRequest = z.infer<typeof registerRequestSchema>;
 export type LoginRequest = z.infer<typeof loginRequestSchema>;
 export type RefreshRequest = z.infer<typeof refreshRequestSchema>;
 export type ForgotPasswordRequest = z.infer<typeof forgotPasswordRequestSchema>;
 export type ResetPasswordRequest = z.infer<typeof resetPasswordRequestSchema>;
+export type VerifyEmailRequest = z.infer<typeof verifyEmailRequestSchema>;
 export type AuthUser = z.infer<typeof authUserSchema>;
 export type AuthResponseData = z.infer<typeof authResponseDataSchema>;
 export type LogoutResponseData = z.infer<typeof logoutResponseDataSchema>;
@@ -61,6 +72,9 @@ export type ForgotPasswordResponseData = z.infer<
 >;
 export type ResetPasswordResponseData = z.infer<
   typeof resetPasswordResponseDataSchema
+>;
+export type VerifyEmailResponseData = z.infer<
+  typeof verifyEmailResponseDataSchema
 >;
 export type AuthApiResponse = ApiResponse<AuthResponseData>;
 
@@ -95,4 +109,11 @@ export const resetPassword = async (
 ): Promise<ResetPasswordResponseData> => {
   const data = await api.post("/auth/reset-password", payload);
   return resetPasswordResponseDataSchema.parse(data);
+};
+
+export const verifyEmail = async (
+  payload: VerifyEmailRequest
+): Promise<VerifyEmailResponseData> => {
+  const data = await api.post("/auth/verify-email", payload);
+  return verifyEmailResponseDataSchema.parse(data);
 };

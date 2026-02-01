@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { loginRequestSchema, useAuth } from "@/features/auth";
+import { ApiError } from "@/lib/axios";
 import { AlertCircle } from "lucide-react";
 
 export function LoginCard() {
@@ -31,8 +32,15 @@ export function LoginCard() {
 
     loginMutation.mutate(validation.data, {
       onSuccess: () => setError(null),
-      onError: (err) =>
-        setError(err instanceof Error ? err.message : "Đăng nhập thất bại."),
+      onError: (err) => {
+        if (err instanceof ApiError && err.statusCode === 403) {
+          setError(
+            "Email chưa được xác minh. Vui lòng kiểm tra hộp thư để xác minh."
+          );
+          return;
+        }
+        setError(err instanceof Error ? err.message : "Đăng nhập thất bại.");
+      },
     });
   };
 

@@ -9,16 +9,18 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { registerRequestSchema, useAuth } from "@/features/auth";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 
 export function RegisterCard() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { registerMutation } = useAuth();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setMessage(null);
     setError(null);
     if (registerMutation.isPending) return;
 
@@ -29,7 +31,10 @@ export function RegisterCard() {
     }
 
     registerMutation.mutate(validation.data, {
-      onSuccess: () => setError(null),
+      onSuccess: () => {
+        setError(null);
+        setMessage("Đăng ký thành công. Vui lòng kiểm tra email để xác minh.");
+      },
       onError: (err) =>
         setError(err instanceof Error ? err.message : "Đăng ký thất bại."),
     });
@@ -85,6 +90,15 @@ export function RegisterCard() {
             />
           </div>
 
+          {message ? (
+            <Alert className="border-emerald-200/80 bg-emerald-50/80 text-emerald-700 shadow-[0_10px_30px_-20px_rgba(16,185,129,0.35)]">
+              <CheckCircle2 />
+              <AlertTitle>Đã gửi email xác minh</AlertTitle>
+              <AlertDescription className="text-emerald-600">
+                {message}
+              </AlertDescription>
+            </Alert>
+          ) : null}
           {error ? (
             <Alert
               variant="destructive"

@@ -5,7 +5,7 @@ import type {
   AxiosRequestConfig,
   InternalAxiosRequestConfig,
 } from "axios";
-import type { ApiResponse } from "./types/api";
+import type { ApiErrorPayload, ApiResponse } from "./types/api";
 
 type AxiosRequestConfigWithRetry = AxiosRequestConfig & { _retry?: boolean };
 
@@ -24,6 +24,20 @@ const api = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+class ApiError extends Error {
+  statusCode?: number;
+  error?: string;
+  time?: string;
+
+  constructor(message: string, payload?: ApiErrorPayload) {
+    super(message);
+    this.name = "ApiError";
+    this.statusCode = payload?.code;
+    this.error = payload?.error;
+    this.time = payload?.time;
+  }
+}
 
 const rawApi = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
@@ -78,7 +92,9 @@ const onResponseFulfilled = (
     return payload.data;
   }
 
-  return Promise.reject(new Error(payload?.error ?? "Unknown API error"));
+  return Promise.reject(
+    new ApiError(payload?.error ?? "Unknown API error", payload)
+  );
 };
 
 const responseInterceptors =
@@ -145,4 +161,4 @@ responseInterceptors.use(
 );
 
 export default api;
-export { api, getAccessToken, setAccessToken };
+export { api, getAccessToken, setAccessToken, ApiError };

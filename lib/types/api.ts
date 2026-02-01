@@ -5,3 +5,10 @@ export type ApiResponse<T> = {
   data?: T;
   error?: string;
 };
+
+export type ApiErrorPayload = {
+  status: "error";
+  code: number;
+  time: string;
+  error?: string;
+};

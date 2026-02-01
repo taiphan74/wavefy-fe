@@ -8,6 +8,7 @@ import {
   logout,
   register,
   resetPassword,
+  verifyEmail,
 } from "./auth-api";
 import { setAccessToken } from "@/lib/axios";
 import type {
@@ -18,6 +19,8 @@ import type {
   RegisterRequest,
   ResetPasswordRequest,
   ResetPasswordResponseData,
+  VerifyEmailRequest,
+  VerifyEmailResponseData,
 } from "./auth-api";
 
 export const authTokenKey = ["auth", "token"] as const;
@@ -73,11 +76,20 @@ export const useAuth = () => {
     mutationFn: resetPassword,
   });
 
+  const verifyEmailMutation = useMutation<
+    VerifyEmailResponseData,
+    Error,
+    VerifyEmailRequest
+  >({
+    mutationFn: verifyEmail,
+  });
+
   return {
     loginMutation,
     registerMutation,
     logoutMutation,
     forgotPasswordMutation,
     resetPasswordMutation,
+    verifyEmailMutation,
   };
 };
