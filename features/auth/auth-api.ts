@@ -12,6 +12,9 @@ export const loginRequestSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
 });
+export const googleAuthRequestSchema = z.object({
+  credential: z.string().min(1),
+});
 
 export const refreshRequestSchema = z.object({
   refresh_token: z.string().min(1),
@@ -60,6 +63,7 @@ export const verifyEmailResponseDataSchema = z.object({
 
 export type RegisterRequest = z.infer<typeof registerRequestSchema>;
 export type LoginRequest = z.infer<typeof loginRequestSchema>;
+export type GoogleAuthRequest = z.infer<typeof googleAuthRequestSchema>;
 export type RefreshRequest = z.infer<typeof refreshRequestSchema>;
 export type ForgotPasswordRequest = z.infer<typeof forgotPasswordRequestSchema>;
 export type ResetPasswordRequest = z.infer<typeof resetPasswordRequestSchema>;
@@ -89,6 +93,14 @@ export const login = async (
   payload: LoginRequest
 ): Promise<AuthResponseData> => {
   const data = await api.post("/auth/login", payload);
+  return authResponseDataSchema.parse(data);
+};
+
+export const googleAuth = async (
+  payload: GoogleAuthRequest
+): Promise<AuthResponseData> => {
+  const endpoint = process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENDPOINT ?? "/auth/google";
+  const data = await api.post(endpoint, payload);
   return authResponseDataSchema.parse(data);
 };
 

@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import {
   forgotPassword,
+  googleAuth,
   login,
   logout,
   register,
@@ -15,6 +16,7 @@ import type {
   AuthResponseData,
   ForgotPasswordRequest,
   ForgotPasswordResponseData,
+  GoogleAuthRequest,
   LoginRequest,
   RegisterRequest,
   ResetPasswordRequest,
@@ -31,6 +33,18 @@ export const useAuth = () => {
 
   const loginMutation = useMutation<AuthResponseData, Error, LoginRequest>({
     mutationFn: login,
+    onSuccess: (data) => {
+      setAccessToken(data.access_token);
+      queryClient.setQueryData(authTokenKey, data.access_token);
+      queryClient.setQueryData(authUserKey, data.user);
+    },
+  });
+  const googleAuthMutation = useMutation<
+    AuthResponseData,
+    Error,
+    GoogleAuthRequest
+  >({
+    mutationFn: googleAuth,
     onSuccess: (data) => {
       setAccessToken(data.access_token);
       queryClient.setQueryData(authTokenKey, data.access_token);
@@ -86,6 +100,7 @@ export const useAuth = () => {
 
   return {
     loginMutation,
+    googleAuthMutation,
     registerMutation,
     logoutMutation,
     forgotPasswordMutation,

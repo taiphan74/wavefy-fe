@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import Link from "next/link";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -10,19 +10,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { registerRequestSchema, useAuth } from "@/features/auth";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { GoogleSignInButton } from "./google-sign-in-button";
 
 export function RegisterCard() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const { registerMutation } = useAuth();
+  const { registerMutation, googleAuthMutation } = useAuth();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setMessage(null);
     setError(null);
-    if (registerMutation.isPending) return;
+    if (registerMutation.isPending || googleAuthMutation.isPending) return;
 
     const validation = registerRequestSchema.safeParse({ email, password });
     if (!validation.success) {
@@ -39,6 +40,27 @@ export function RegisterCard() {
         setError(err instanceof Error ? err.message : "Đăng ký thất bại."),
     });
   };
+  const handleGoogleCredential = useCallback(
+    (credential: string) => {
+      setMessage(null);
+      setError(null);
+      if (registerMutation.isPending || googleAuthMutation.isPending) return;
+
+      googleAuthMutation.mutate(
+        { credential },
+        {
+          onSuccess: () => {
+            setError(null);
+          },
+          onError: (err) =>
+            setError(
+              err instanceof Error ? err.message : "Đăng ký Google thất bại."
+            ),
+        }
+      );
+    },
+    [googleAuthMutation, registerMutation.isPending]
+  );
 
   return (
     <Card className="w-full max-w-md rounded-3xl border-white/70 bg-white/80 shadow-[0_24px_60px_-45px_rgba(15,23,42,0.6)] backdrop-blur">
@@ -114,11 +136,30 @@ export function RegisterCard() {
 
           <Button
             type="submit"
-            disabled={registerMutation.isPending}
+            disabled={registerMutation.isPending || googleAuthMutation.isPending}
             className="h-12 w-full rounded-2xl text-sm font-semibold shadow-lg transition hover:-translate-y-0.5"
           >
-            {registerMutation.isPending ? "Đang tạo tài khoản..." : "Tạo tài khoản"}
+            {registerMutation.isPending || googleAuthMutation.isPending
+              ? "Đang tạo tài khoản..."
+              : "Tạo tài khoản"}
           </Button>
+
+          <div className="space-y-3">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-slate-200" />
+              </div>
+              <div className="relative flex justify-center text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                <span className="bg-white px-3">Hoặc đăng ký bằng Google</span>
+              </div>
+            </div>
+            <GoogleSignInButton
+              onCredential={handleGoogleCredential}
+              disabled={
+                registerMutation.isPending || googleAuthMutation.isPending
+              }
+            />
+          </div>
         </form>
       </CardContent>
 

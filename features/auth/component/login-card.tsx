@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import Link from "next/link";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -12,17 +12,18 @@ import { Label } from "@/components/ui/label";
 import { loginRequestSchema, useAuth } from "@/features/auth";
 import { ApiError } from "@/lib/axios";
 import { AlertCircle } from "lucide-react";
+import { GoogleSignInButton } from "./google-sign-in-button";
 
 export function LoginCard() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const { loginMutation } = useAuth();
+  const { loginMutation, googleAuthMutation } = useAuth();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
-    if (loginMutation.isPending) return;
+    if (loginMutation.isPending || googleAuthMutation.isPending) return;
 
     const validation = loginRequestSchema.safeParse({ email, password });
     if (!validation.success) {
@@ -43,6 +44,24 @@ export function LoginCard() {
       },
     });
   };
+  const handleGoogleCredential = useCallback(
+    (credential: string) => {
+      setError(null);
+      if (loginMutation.isPending || googleAuthMutation.isPending) return;
+
+      googleAuthMutation.mutate(
+        { credential },
+        {
+          onSuccess: () => setError(null),
+          onError: (err) =>
+            setError(
+              err instanceof Error ? err.message : "Đăng nhập Google thất bại."
+            ),
+        }
+      );
+    },
+    [googleAuthMutation, loginMutation.isPending]
+  );
 
   return (
     <Card className="w-full max-w-md rounded-3xl border-white/70 bg-white/80 shadow-[0_24px_60px_-45px_rgba(15,23,42,0.6)] backdrop-blur">
@@ -124,11 +143,28 @@ export function LoginCard() {
 
           <Button
             type="submit"
-            disabled={loginMutation.isPending}
+            disabled={loginMutation.isPending || googleAuthMutation.isPending}
             className="h-12 w-full rounded-2xl text-sm font-semibold shadow-lg transition hover:-translate-y-0.5"
           >
-            {loginMutation.isPending ? "Đang đăng nhập..." : "Đăng nhập"}
+            {loginMutation.isPending || googleAuthMutation.isPending
+              ? "Đang đăng nhập..."
+              : "Đăng nhập"}
           </Button>
+
+          <div className="space-y-3">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-slate-200" />
+              </div>
+              <div className="relative flex justify-center text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                <span className="bg-white px-3">Hoặc đăng nhập bằng Google</span>
+              </div>
+            </div>
+            <GoogleSignInButton
+              onCredential={handleGoogleCredential}
+              disabled={loginMutation.isPending || googleAuthMutation.isPending}
+            />
+          </div>
         </form>
       </CardContent>
       <CardFooter className="justify-center">
